@@ -15,7 +15,7 @@ router.post('/sign-up', async (req, res, next) => {
     const { email, password } = req.body;
     const isExistUser = await prisma.users.findFirst({
       where: {
-        email,
+        email
       },
     });
 
@@ -39,15 +39,15 @@ router.post('/sign-up', async (req, res, next) => {
 
         // throw new Error("고의로 발생시킨 트랜젝션 에러")
 
-        // 트랜잭션 내부에서 사용자 정보를 생성합니다.
-        const userInfo = await tx.userInfos.create({
-          data: {
-            userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
-          },
-        });
+        // 트랜잭션 내부에서 사용자 정보를 생성합니다.  <-- 이거때문에 에러가 난 것
+        // const userInfo = await tx.userInfos.create({
+        //   data: {
+        //     userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
+        //   },
+        // });
 
         // 콜백 함수의 리턴값으로 사용자와 사용자 정보를 반환합니다.
-        return [user, userInfo];
+        return [user];
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
