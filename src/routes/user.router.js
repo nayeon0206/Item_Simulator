@@ -12,7 +12,7 @@ const router = express.Router();
 /** 사용자 회원가입 API 트랜잭션 **/
 router.post('/sign-up', async (req, res, next) => {
   try {
-    const { email, password, name, age, gender, profileImage } = req.body;
+    const { email, password } = req.body;
     const isExistUser = await prisma.users.findFirst({
       where: {
         email,
@@ -27,7 +27,7 @@ router.post('/sign-up', async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // MySQL과 연결된 Prisma 클라이언트를 통해 트랜잭션을 실행합니다.
-    const [user, userInfo] = await prisma.$transaction(
+    const [user] = await prisma.$transaction(
       async (tx) => {
         // 트랜잭션 내부에서 사용자를 생성합니다.
         const user = await tx.users.create({
@@ -43,10 +43,6 @@ router.post('/sign-up', async (req, res, next) => {
         const userInfo = await tx.userInfos.create({
           data: {
             userId: user.userId, // 생성한 유저의 userId를 바탕으로 사용자 정보를 생성합니다.
-            name,
-            age,
-            gender: gender.toUpperCase(), // 성별을 대문자로 변환합니다.
-            profileImage,
           },
         });
 
